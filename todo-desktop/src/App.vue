@@ -1,13 +1,24 @@
 <script setup>
 import { ref } from "vue"
+import { pinToTopRight, unpin } from "./utils/windowControl"
 
 const todos = ref([
-  { id: 1, text: "任务1", done: false },
+  { id: 1, text: "每日一题", done: false },
   { id: 2, text: "任务2", done: false },
   { id: 3, text: "任务3", done: false },
 ])
 const newTodo = ref("")
+const pinned = ref(false)
 
+async function togglePin() {
+  if (pinned.value) {
+    await unpin()
+    pinned.value = false
+  } else {
+    await pinToTopRight()
+    pinned.value = true
+  }
+}
 
 function addTodo() {
   if (newTodo.value.trim() === "") return
@@ -18,13 +29,20 @@ function addTodo() {
   })
   newTodo.value = ""
 }
-
 </script>
 
 <template>
-  <div class="bg">
+  <div :class="['bg', pinned ? 'bg-pinned' : 'bg-unpinned']">
     <div class="head">
-      <h1>今日任务</h1>
+      <div class="head-left"><h1>今日任务</h1></div>
+      <div class="head-right">
+        <img 
+          :src="pinned ? '放大.png' : '右上.png'"
+          alt="钉在右上"
+          class="pin-btn"
+          @click="togglePin"
+          >
+      </div>
     </div>
     <div class="body">
       <div class="todo" v-for="todo in todos">
@@ -50,14 +68,18 @@ function addTodo() {
 .bg {
   width: 100vw;
   height: 100vh;
-  /* background-image: url(房间背景.png); */
-  /* 确实比我之前用100% 100%好 */
-  /* background-size: cover; 
-  background-position: center;
-  background-repeat: no-repeat; */
+}
 
-  background: rgba(255, 255, 255, 0.3);
-  backdrop-filter: blur(10px);
+.bg-unpinned {
+  background-image: url(房间背景.png);
+  background-size: cover; 
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.bg-pinned {
+  /* background: rgba(255, 255, 255, 0.3); */
+  background: rgba(0, 0, 0, 0.3);
 }
 
 .head {
@@ -67,8 +89,18 @@ function addTodo() {
   color: #fff;
 
   display: flex;
-  justify-content: center;
+  justify-content:space-around;
   align-items: center;
+}
+
+.pin-btn {
+  width: 32px;  
+  height: 32px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+.pin-btn:hover {
+  transform: scale(1.1);
 }
 
 .body {
