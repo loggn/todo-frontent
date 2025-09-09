@@ -1,11 +1,13 @@
 <script setup>
-import { ref } from "vue"
+import { ref, computed } from "vue"
 import { pinToTopRight, unpin } from "./utils/windowControl"
 
 const todos = ref([
-  { id: 1, text: "每日一题", done: false },
-  { id: 2, text: "任务2", done: false },
-  { id: 3, text: "任务3", done: false },
+  { id: 1, text: "学习vue框架、Gin框架", done: false },
+  { id: 2, text: "怎么去使用DevTools", done: false },
+  { id: 3, text: "go的GIN并发是怎样的", done: false },
+  { id: 4, text: "已完成列表", done: false },
+  { id: 4, text: "后端开头", done: false },
 ])
 const newTodo = ref("")
 const pinned = ref(false)
@@ -29,6 +31,8 @@ function addTodo() {
   })
   newTodo.value = ""
 }
+
+const activeTodos = computed(() => todos.value.filter(t => !t.done))
 </script>
 
 <template>
@@ -45,8 +49,12 @@ function addTodo() {
       </div>
     </div>
     <div class="body">
-      <div class="todo" v-for="todo in todos">
+      <div class="todo" v-for="todo in activeTodos" :key="todo.id">
         {{ todo.text }}
+        <label class="checkbox">
+          <input type="checkbox" v-model="todo.done" />
+          <span class="checkmark"></span>
+        </label>
       </div>
     </div>
     <div class="foot">
@@ -126,10 +134,53 @@ function addTodo() {
 
   display: flex;
   align-items: center;
+  justify-content: space-between;
 
   padding-left: 10px;
 
   font-size: large;
+}
+
+.checkbox {
+  padding-right: 10px;
+}
+
+.checkbox input {
+  display: none;
+}
+
+.checkmark {
+  width: 20px;
+  height: 20px;
+
+  border: 2px solid #8f8d8d;
+
+  border-radius: 50%;
+
+  display: inline-block;
+
+  cursor: pointer;
+
+  position: relative;
+
+  transition: all 0.2s;
+}
+/* 
+.checkbox:hover .checkmark {
+  background: rgba(255, 255, 255, 0.2);
+} */
+.checkmark:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.checkbox input:checked + .checkmark::after {
+  content: "✔";
+  color: #fff;
+  font-size: 14px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -55%);
 }
 
 .foot {
